@@ -4,18 +4,17 @@ import Image from "next/image";
 import React from "react";
 
 interface CollectionDetailsProps {
-  params: {
-    collectionId: string;
-  };
+  params: Promise<{ collectionId: string }>;
 }
 
 const CollectionDetails = async ({ params }: CollectionDetailsProps) => {
-  const collectionDetails = await getCollectionDetails(params.collectionId);
+  const { collectionId } = await params;
+  const collectionDetails = await getCollectionDetails(collectionId);
 
   return (
     <div className="px-10 py-5 flex flex-col items-center gap-8">
       <Image
-        src={collectionDetails.image}
+        src={collectionDetails.image || "/placeholder.svg"}
         width={1500}
         height={1000}
         alt="collection"
