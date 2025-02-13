@@ -25,32 +25,35 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
+    const { user } = useContext(UserContext)
+    const { cart } = useContext(CartContext)
+    const router = useRouter()
     try {
       if (!user) {
-        router.push("sign-in");
+        router.push("sign-in")
       } else {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkout`, {
           method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ cartItems: cart.cartItems, customer }),
-          credentials: 'include',
-        });
+          body: JSON.stringify({ cartItems: cart.cartItems, customer: user }),
+          credentials: "include",
+        })
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          throw new Error(`HTTP error! status: ${res.status}`)
         }
-        const data = await res.json();
+        const data = await res.json()
         if (data.url) {
-          window.location.href = data.url;
+          window.location.href = data.url
         } else {
-          console.error("No checkout URL received");
+          console.error("No checkout URL received")
         }
       }
     } catch (err) {
-      console.error("[checkout_POST]", err);
+      console.error("[checkout_POST]", err)
     }
-  };
+  }
 
   return (
     <div className="flex gap-20 py-16 px-10 max-lg:flex-col max-sm:px-3">
