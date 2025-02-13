@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
         <Menu className="cursor-pointer h-6 w-6" onClick={toggleMenu} />
 
         {/* Centered Logo */}
-        <Link href="/" className="flex-grow text-center">
+        <Link href="/" className="grow text-center">
           <Image src="/logo.png" alt="logo" width={130} height={100} className="mx-auto" />
         </Link>
 
@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
             <HoverCardContent className="p-3 bg-white border border-gray-200 shadow-lg rounded-lg">
               <div className="flex gap-2 items-center">
                 <input
-                  className="outline-none w-full max-w-[200px] px-2 py-1 border border-gray-300 rounded-md"
+                  className="outline-hidden w-full max-w-[200px] px-2 py-1 border border-gray-300 rounded-md"
                   placeholder="Search..."
                   value={query}
                   onChange={handleSearchChange}

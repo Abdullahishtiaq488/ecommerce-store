@@ -102,14 +102,14 @@ const Carousel: React.FC = () => {
             priority={index === 0}
             loading={index === 0 ? "eager" : "lazy"}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40" />
           {slide.content}
         </div>
       ))}
 
       <button
         onClick={handlePrevious}
-        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white"
+        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-hidden focus:ring-2 focus:ring-white"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-6 w-6" />
@@ -117,7 +117,7 @@ const Carousel: React.FC = () => {
 
       <button
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white"
+        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-hidden focus:ring-2 focus:ring-white"
         aria-label="Next slide"
       >
         <ChevronRight className="h-6 w-6" />

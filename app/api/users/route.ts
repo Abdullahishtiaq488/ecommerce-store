@@ -1,12 +1,12 @@
 import User from "@/lib/models/User";
 import { connectToDB } from "@/lib/mongoDB";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
 
     if (!userId) {
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 401 })

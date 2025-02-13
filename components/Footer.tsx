@@ -11,10 +11,10 @@ const Footer = () => {
                 <Image
                     src={bgImage}
                     alt="Footer Background"
-                    layout="fill"
+                    fill
                     objectFit="cover"
                     quality={100}
-                    className="z-12"
+                    className="-z-12"
                 />
                 <div className="absolute inset-0 bg-black opacity-80"></div> {/* Black Gradient Overlay */}
             </div>
@@ -30,7 +30,7 @@ const Footer = () => {
                         <input
                             type="email"
                             placeholder="Subscribe to our newsletter"
-                            className="p-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-pink-500 text-black"
+                            className="p-2 border border-gray-300  focus:outline-hidden focus:ring-2 focus:ring-pink-500 text-black"
                             style={{ width: '250px' }} // Adjust the width as needed
                         />
                         <button className="bg-brown text-white font-bold py-2 px-4 hover:bg-pink-700 transition duration-300">

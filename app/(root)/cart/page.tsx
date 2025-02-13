@@ -52,8 +52,8 @@ const Cart = () => {
           <p className="text-body-bold">No item in cart</p>
         ) : (
           <div>
-            {cart.cartItems.map((cartItem) => (
-              <div className="w-full flex max-sm:flex-col max-sm:gap-3 hover:bg-grey-1 px-4 py-3 items-center max-sm:items-start justify-between">
+            {cart.cartItems.map((cartItem, index) => (
+              <div key={index} className="w-full flex max-sm:flex-col max-sm:gap-3 hover:bg-grey-1 px-4 py-3 items-center max-sm:items-start justify-between">
                 <div className="flex items-center">
                   <Image
                     src={cartItem.item.media[0]}
