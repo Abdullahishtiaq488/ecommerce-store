@@ -1,13 +1,13 @@
 import User from "@/lib/models/User";
 import { connectToDB } from "@/lib/mongoDB";
 
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 })
