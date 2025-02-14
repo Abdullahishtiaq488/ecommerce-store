@@ -98,9 +98,9 @@ const Carousel: React.FC = () => {
             src={slide.src || "/placeholder.svg"}
             alt={slide.alt}
             fill
-            objectFit="cover"
             priority={index === 0}
             loading={index === 0 ? "eager" : "lazy"}
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40" />
           {slide.content}

@@ -31,24 +31,14 @@ const Cart = () => {
       } else {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout`, {
           method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({ cartItems: cart.cartItems, customer }),
-          credentials: 'include',
         });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
         const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          console.error("No checkout URL received");
-        }
+        window.location.href = data.url;
+        console.log(data);
       }
     } catch (err) {
-      console.error("[checkout_POST]", err);
+      console.log("[checkout_POST]", err);
     }
   };
 
