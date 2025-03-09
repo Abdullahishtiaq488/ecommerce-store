@@ -41,6 +41,7 @@ const Cart = () => {
       console.log("[checkout_POST]", err);
     }
   };
+  
 
   return (
     <div className="flex gap-20 py-16 px-10 max-lg:flex-col max-sm:px-3">

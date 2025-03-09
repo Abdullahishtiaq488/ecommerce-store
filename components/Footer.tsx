@@ -1,104 +1,252 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
-import bgImage from '../public/surprised-women.jpg';
+import Link from 'next/link';
+import {
+    Mail,
+    Phone,
+    MapPin,
+    Instagram,
+    Facebook,
+    Twitter,
+    Youtube,
+    Send,
+    Clock,
+    ChevronRight
+} from 'lucide-react';
+import bgImage from '../public/vintage-collection.jpg';
 
 const Footer = () => {
+    const currentYear = new Date().getFullYear();
+
     return (
-
-        <footer className="relative text-white h-auto mt-2" id='footer'>
-
-            <div className="absolute inset-0">
+        <footer className="relative text-white">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0">
                 <Image
                     src={bgImage}
                     alt="Footer Background"
                     fill
-                    objectFit="cover"
+                    priority
                     quality={100}
-                    className="-z-12"
+                    className="object-cover"
                 />
-                <div className="absolute inset-0 bg-black opacity-80"></div> {/* Black Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/85 to-black/90"></div>
             </div>
 
-            <div className="relative z-10 p-8">
-                {/* First Row - Single Column */}
-                <div className="flex flex-col items-center text-center space-y-4 mb-8">
-                    <h1 className="text-2xl font-bold">Stay Connected with Us</h1>
-                    <p className="text-lg">
-                        Subscribe to our newsletter for the latest updates and offers.
-                    </p>
-                    <div className="flex items-center">
-                        <input
-                            type="email"
-                            placeholder="Subscribe to our newsletter"
-                            className="p-2 border border-gray-300  focus:outline-hidden focus:ring-2 focus:ring-pink-500 text-black"
-                            style={{ width: '250px' }} // Adjust the width as needed
-                        />
-                        <button className="bg-brown text-white font-bold py-2 px-4 hover:bg-pink-700 transition duration-300">
-                            Subscribe
-                        </button>
-                    </div>
-                </div>
-
-
-                <hr className="border-t border-gray-500 mb-4" />
-
-                {/* Second Row - Four Columns */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-8 p-2 md:p-10">
-                    {/* Column 1: About */}
-                    <div className="md:p-2">
-
-
-                        <p className='mt-4 md:mt-6'>
-                            Welcome to [Store Name], where style meets elegance! Our store offers a curated selection of the latest
-                            trends and timeless classics, ensuring you find the perfect outfit for any occasion. With a focus on quality
-                            craftsmanship and unique designs, we celebrate individuality and self-expression through fashion.
-                            Discover pieces that resonate with your personal style and elevate your wardrobe!
+            {/* Newsletter Section */}
+            <div className="relative z-10 border-b border-gray-800">
+                <div className="container mx-auto px-6 py-14 md:py-16">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <h2 className="text-heading3-bold md:text-heading2-bold mb-3 text-white tracking-tight">
+                            Join Our Community
+                        </h2>
+                        <p className="text-base-medium md:text-body-medium text-grey-2 mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed">
+                            Subscribe to receive exclusive offers, early access to new collections, and style inspiration delivered to your inbox.
                         </p>
-                    </div>
-
-                    {/* Column 2: About Us Links */}
-                    <div className="md:p-2">
-                        <h2 className="text-xl font-bold mb-4 md:mb-8">Quick Links</h2>
-                        <ul className="space-y-2">
-                            <li><a href="#home" className="hover:underline">Home</a></li>
-                            <li><a href="#testimonials" className="hover:underline">Testimonials</a></li>
-                            <li><a href="#services" className="hover:underline">Our Services</a></li>
-                            <li><a href="#trucks" className="hover:underline">Who can Work with us</a></li>
-                            <li><a href="/privacy-policy" className="hover:underline">Privacy Policy</a></li>
-
-                        </ul>
-                    </div>
-
-                    {/* Column 3: FAQs Links */}
-                    <div className="md:selection:p-2">
-                        <h2 className="text-xl font-bold mb-4 md:mb-8">Our Location</h2>
-                        <ul className="space-y-2 text-sm">
-                            <iframe className='w-full h-auto' src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3437.903788142798!2d-87.190473!3d30.495473199999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8890c0285b0e2bc7%3A0x6c76aaee360fb49d!2s6901a%20N%209th%20Ave%20%231387%2C%20Pensacola%2C%20FL%2032504%2C%20USA!5e0!3m2!1sen!2s!4v1727715305783!5m2!1sen!2s" loading="lazy" ></iframe>
-                        </ul>
-                    </div>
-
-                    {/* Column 4: Contact Info */}
-                    <div className="md:p-2">
-                        <h2 className="text-xl font-bold mb-4 md:mb-8">Contact</h2>
-                        <ul className="space-y-2">
-                            <li>6901A N 9th Avenue #1387 Pensacola, Florida, 32504</li>
-                            <li><a href='mail:aheadoftheothersfreight786@gmail.com'>Email: R@theaheadotrfreight.com</a></li>
-
-                            <li><a href='tel:+12514447918'>Phone: +1 251 4447918</a></li>
-                        </ul>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
+                            <div className="relative w-full">
+                                <input
+                                    type="email"
+                                    placeholder="Your email address"
+                                    className="w-full px-4 py-3 rounded-md bg-white/5 backdrop-blur-sm border border-gray-700 text-white placeholder-grey-2 focus:outline-none focus:border-red-1 transition-all"
+                                />
+                            </div>
+                            <button className="w-full sm:w-auto px-6 py-3 bg-red-1 text-white hover:bg-red-600 rounded-md font-medium flex items-center justify-center gap-2 transition-all">
+                                Subscribe <Send size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Horizontal Line */}
-                <hr className="border-t border-gray-500 mb-4" />
+            {/* Main Footer Content */}
+            <div className="relative z-10">
+                <div className="container mx-auto px-6 py-14 md:py-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+                        {/* Column 1: About */}
+                        <div>
+                            <div className="mb-6 md:mb-8">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Store Logo"
+                                    width={150}
+                                    height={60}
+                                    className="object-contain bg-white p-2 rounded-md"
+                                />
+                            </div>
+                            <p className="text-small-medium md:text-base-medium text-grey-1 mb-6 leading-relaxed">
+                                Discover the perfect blend of style and comfort with our curated collection of premium garments. We believe fashion should be an expression of your unique personality.
+                            </p>
+                            <div className="flex space-x-4">
+                                <a href="https://instagram.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Instagram">
+                                    <Instagram size={16} className="text-white" />
+                                </a>
+                                <a href="https://facebook.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Facebook">
+                                    <Facebook size={16} className="text-white" />
+                                </a>
+                                <a href="https://twitter.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Twitter">
+                                    <Twitter size={16} className="text-white" />
+                                </a>
+                                <a href="https://youtube.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="YouTube">
+                                    <Youtube size={16} className="text-white" />
+                                </a>
+                            </div>
+                        </div>
 
-                {/* Last Row - Copyright */}
-                <div className="text-center text-sm">
-                    <p>© {new Date().getFullYear()} Your Company. All Rights Reserved.</p>
+                        {/* Column 2: Shop */}
+                        <div>
+                            <h3 className="text-heading4-bold mb-4 md:mb-5 text-white tracking-tight">
+                                Shop Collections
+                            </h3>
+                            <ul className="space-y-2.5">
+                                <li>
+                                    <Link href="/collections/mens-clothing" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Men's Collection</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/collections/womens-clothing" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Women's Collection</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/collections/accessories" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Accessories</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/collections/footwear" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Footwear</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/collections/new-arrivals" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">New Arrivals</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/collections/sale" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Sale</span>
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Column 3: Quick Links */}
+                        <div>
+                            <h3 className="text-heading4-bold mb-4 md:mb-5 text-white tracking-tight">
+                                Customer Service
+                            </h3>
+                            <ul className="space-y-2.5">
+                                <li>
+                                    <Link href="/about" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">About Us</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/contact" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Contact Us</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/faq" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">FAQ</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/shipping" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Shipping & Returns</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/privacy-policy" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Privacy Policy</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/terms" className="text-grey-1 hover:text-white flex items-center group">
+                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Terms & Conditions</span>
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Column 4: Contact */}
+                        <div>
+                            <h3 className="text-heading4-bold mb-4 md:mb-5 text-white tracking-tight">
+                                Contact Us
+                            </h3>
+                            <ul className="space-y-3.5">
+                                <li className="flex items-start">
+                                    <MapPin className="mr-3 text-red-1 flex-shrink-0 mt-0.5" size={16} />
+                                    <span className="text-grey-1 text-small-medium">
+                                        123 Fashion Street, Style Avenue, New York, NY 10001
+                                    </span>
+                                </li>
+                                <li className="flex items-center">
+                                    <Phone className="mr-3 text-red-1 flex-shrink-0" size={16} />
+                                    <a href="tel:+12345678900" className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
+                                        +1 (234) 567-8900
+                                    </a>
+                                </li>
+                                <li className="flex items-center">
+                                    <Mail className="mr-3 text-red-1 flex-shrink-0" size={16} />
+                                    <a href="mailto:info@fashionstore.com" className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
+                                        info@fashionstore.com
+                                    </a>
+                                </li>
+                                <li className="flex items-start">
+                                    <Clock className="mr-3 text-red-1 flex-shrink-0 mt-0.5" size={16} />
+                                    <div className="text-grey-1 text-small-medium">
+                                        <p className="mb-1">Monday - Friday: 9AM - 8PM</p>
+                                        <p>Saturday - Sunday: 10AM - 6PM</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="relative z-10 border-t border-gray-800">
+                <div className="container mx-auto px-6 py-5">
+                    <div className="flex flex-col md:flex-row justify-between items-center">
+                        <div className="mb-3 md:mb-0 flex items-center">
+                            <p className="text-grey-2 text-small-medium">
+                                We accept
+                            </p>
+                            <div className="flex space-x-2 ml-3">
+                                <div className="w-8 h-5 md:w-10 md:h-6 bg-white/10 rounded"></div>
+                                <div className="w-8 h-5 md:w-10 md:h-6 bg-white/10 rounded"></div>
+                                <div className="w-8 h-5 md:w-10 md:h-6 bg-white/10 rounded"></div>
+                                <div className="w-8 h-5 md:w-10 md:h-6 bg-white/10 rounded"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-grey-2 text-small-medium text-center md:text-right">
+                                &copy; {currentYear} Fashion Store. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </footer>
     );
 };
 
-export default Footer;
+export default Footer; 

@@ -1,6 +1,6 @@
 import Collections from "@/components/Collections";
 import ProductList from "@/components/ProductList";
-import Carousel from "@/components/Carousel";
+import Carousel from "@/components/carousel";
 
 import Image from "next/image";
 
