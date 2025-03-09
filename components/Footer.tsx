@@ -16,8 +16,13 @@ import {
     ChevronRight
 } from 'lucide-react';
 import bgImage from '../public/vintage-collection.jpg';
+import { siteConfig } from '@/lib/config/site';
 
-const Footer = () => {
+interface FooterProps {
+    collections: CollectionType[];
+}
+
+const Footer = ({ collections }: FooterProps) => {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -80,16 +85,16 @@ const Footer = () => {
                                 Discover the perfect blend of style and comfort with our curated collection of premium garments. We believe fashion should be an expression of your unique personality.
                             </p>
                             <div className="flex space-x-4">
-                                <a href="https://instagram.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Instagram">
+                                <a href={siteConfig.social.instagram} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Instagram">
                                     <Instagram size={16} className="text-white" />
                                 </a>
-                                <a href="https://facebook.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Facebook">
+                                <a href={siteConfig.social.facebook} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Facebook">
                                     <Facebook size={16} className="text-white" />
                                 </a>
-                                <a href="https://twitter.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Twitter">
+                                <a href={siteConfig.social.twitter} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="Twitter">
                                     <Twitter size={16} className="text-white" />
                                 </a>
-                                <a href="https://youtube.com" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="YouTube">
+                                <a href={siteConfig.social.youtube} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-1 transition-all" aria-label="YouTube">
                                     <Youtube size={16} className="text-white" />
                                 </a>
                             </div>
@@ -101,42 +106,20 @@ const Footer = () => {
                                 Shop Collections
                             </h3>
                             <ul className="space-y-2.5">
-                                <li>
-                                    <Link href="/collections/mens-clothing" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Men's Collection</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/collections/womens-clothing" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Women's Collection</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/collections/accessories" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Accessories</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/collections/footwear" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Footwear</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/collections/new-arrivals" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">New Arrivals</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/collections/sale" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Sale</span>
-                                    </Link>
-                                </li>
+                                {collections && collections.length > 0 ? (
+                                    collections.map((collection) => (
+                                        <li key={collection._id}>
+                                            <Link href={`/collections/${collection._id}`} className="text-grey-1 hover:text-white flex items-center group">
+                                                <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                                <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">{collection.title}</span>
+                                            </Link>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li>
+                                        <span className="text-grey-1 text-small-medium">No collections available</span>
+                                    </li>
+                                )}
                             </ul>
                         </div>
 
@@ -146,42 +129,14 @@ const Footer = () => {
                                 Customer Service
                             </h3>
                             <ul className="space-y-2.5">
-                                <li>
-                                    <Link href="/about" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">About Us</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/contact" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Contact Us</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/faq" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">FAQ</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/shipping" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Shipping & Returns</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/privacy-policy" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Privacy Policy</span>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/terms" className="text-grey-1 hover:text-white flex items-center group">
-                                        <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
-                                        <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">Terms & Conditions</span>
-                                    </Link>
-                                </li>
+                                {siteConfig.navigation.customerService.map((link, index) => (
+                                    <li key={index}>
+                                        <Link href={link.href} className="text-grey-1 hover:text-white flex items-center group">
+                                            <ChevronRight size={14} className="mr-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all text-red-1" />
+                                            <span className="text-small-medium border-b border-transparent group-hover:border-red-1 pb-0.5 transition-all">{link.name}</span>
+                                        </Link>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
 
@@ -194,26 +149,26 @@ const Footer = () => {
                                 <li className="flex items-start">
                                     <MapPin className="mr-3 text-red-1 flex-shrink-0 mt-0.5" size={16} />
                                     <span className="text-grey-1 text-small-medium">
-                                        123 Fashion Street, Style Avenue, New York, NY 10001
+                                        {siteConfig.contact.address}
                                     </span>
                                 </li>
                                 <li className="flex items-center">
                                     <Phone className="mr-3 text-red-1 flex-shrink-0" size={16} />
-                                    <a href="tel:+12345678900" className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
-                                        +1 (234) 567-8900
+                                    <a href={`tel:${siteConfig.contact.phone}`} className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
+                                        {siteConfig.contact.phone}
                                     </a>
                                 </li>
                                 <li className="flex items-center">
                                     <Mail className="mr-3 text-red-1 flex-shrink-0" size={16} />
-                                    <a href="mailto:info@fashionstore.com" className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
-                                        info@fashionstore.com
+                                    <a href={`mailto:${siteConfig.contact.email}`} className="text-grey-1 hover:text-white text-small-medium border-b border-transparent hover:border-red-1 transition-all">
+                                        {siteConfig.contact.email}
                                     </a>
                                 </li>
                                 <li className="flex items-start">
                                     <Clock className="mr-3 text-red-1 flex-shrink-0 mt-0.5" size={16} />
                                     <div className="text-grey-1 text-small-medium">
-                                        <p className="mb-1">Monday - Friday: 9AM - 8PM</p>
-                                        <p>Saturday - Sunday: 10AM - 6PM</p>
+                                        <p className="mb-1">{siteConfig.contact.hours.weekdays}</p>
+                                        <p>{siteConfig.contact.hours.weekend}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -239,7 +194,7 @@ const Footer = () => {
                         </div>
                         <div>
                             <p className="text-grey-2 text-small-medium text-center md:text-right">
-                                &copy; {currentYear} Fashion Store. All rights reserved.
+                                &copy; {currentYear} {siteConfig.name}. All rights reserved.
                             </p>
                         </div>
                     </div>
