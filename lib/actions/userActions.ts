@@ -2,49 +2,52 @@
 
 import User from "@/lib/models/User";
 import { connectToDB } from "@/lib/mongoDB";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidateTag } from "next/cache";
 import { cache } from 'react';
 
-// Define user type for better type safety
-type SafeUser = {
+// Define type for user with safer wishlist typing
+export type SafeUser = {
   _id: string;
   clerkId: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   wishlist: string[];
-  [key: string]: any;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-// Cache user data with React cache
+/**
+ * Gets the current authenticated user data from the database.
+ * Ensures wishlist is always an array.
+ */
 export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
   try {
-    const { userId } = await auth();
-
+    // Check if user is authenticated
+    const { userId } = auth();
+    
     if (!userId) {
       console.log("[GET_CURRENT_USER] No userId found in auth");
       return null;
     }
-
+    
     await connectToDB();
-
-    let user = await User.findOne({ clerkId: userId });
-
-    // When the user sign-in for the 1st time, immediately create a new user
+    
+    // Find user in database
+    const user = await User.findOne({ clerkId: userId });
+    
     if (!user) {
-      user = await User.create({ 
-        clerkId: userId,
-        wishlist: [] // Ensure wishlist is always initialized as an array
-      });
-      await user.save();
+      console.log(`[GET_CURRENT_USER] No user found for clerk ID: ${userId}`);
+      return null;
     }
-
-    // Ensure wishlist exists and is an array
-    if (!user.wishlist) {
-      user.wishlist = [];
-      await user.save();
-    }
-
-    // Convert Mongoose document to plain object for serialization
-    const safeUser = JSON.parse(JSON.stringify(user));
+    
+    // Ensure wishlist is always an array
+    const safeUser: SafeUser = {
+      ...user.toObject(),
+      wishlist: Array.isArray(user.wishlist) ? user.wishlist : [],
+    };
+    
     return safeUser;
   } catch (err) {
     console.error("[GET_CURRENT_USER_ERROR]", err);
@@ -52,54 +55,79 @@ export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
   }
 });
 
-// Update user wishlist
-export async function updateWishlist(productId: string): Promise<SafeUser> {
+/**
+ * Updates the user's wishlist by adding or removing a product ID.
+ * If the product ID is already in the wishlist, it will be removed (toggle behavior).
+ */
+export const updateWishlist = async (clerkId: string, productId: string) => {
   try {
-    if (!productId || typeof productId !== 'string') {
-      throw new Error("Invalid product ID");
+    if (!clerkId || !productId) {
+      throw new Error("Missing required parameters: clerkId or productId");
     }
-
-    const { userId } = await auth();
-
-    if (!userId) {
-      throw new Error("Unauthorized");
-    }
-
+    
     await connectToDB();
-
-    const user = await User.findOne({ clerkId: userId });
-
+    
+    // First, get the current user
+    const user = await User.findOne({ clerkId });
+    
     if (!user) {
-      throw new Error("User not found");
+      throw new Error(`User with clerkId ${clerkId} not found`);
     }
-
-    // Ensure wishlist exists and is an array
+    
+    // Ensure user.wishlist is an array
     if (!Array.isArray(user.wishlist)) {
       user.wishlist = [];
     }
-
-    const isLiked = user.wishlist.includes(productId);
-
-    if (isLiked) {
-      // Dislike - remove item from wishlist
-      user.wishlist = user.wishlist.filter((id: string) => id !== productId);
-    } else {
-      // Like - add item to wishlist
+    
+    // Check if the product is already in the wishlist
+    const productIndex = user.wishlist.indexOf(productId);
+    
+    if (productIndex === -1) {
+      // If product is not in wishlist, add it
       user.wishlist.push(productId);
+    } else {
+      // If product is already in wishlist, remove it
+      user.wishlist.splice(productIndex, 1);
     }
-
+    
+    // Save the updated user
     await user.save();
     
-    // Revalidate the user data cache
-    revalidateTag('user-data');
+    // Revalidate user data
+    revalidateTag('userData');
     
-    // Convert Mongoose document to plain object for serialization
-    const safeUser = JSON.parse(JSON.stringify(user));
-    return safeUser;
+    return {
+      success: true,
+      wishlist: user.wishlist,
+      added: productIndex === -1, // true if added, false if removed
+    };
   } catch (err) {
     console.error("[UPDATE_WISHLIST_ERROR]", err);
-    throw err instanceof Error 
-      ? err 
-      : new Error("Failed to update wishlist");
+    throw new Error(`Failed to update wishlist: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
-} 
+};
+
+/**
+ * Gets user's wishlist items
+ */
+export const getUserWishlist = cache(async (userId: string): Promise<string[]> => {
+  try {
+    if (!userId) {
+      throw new Error("Missing required parameter: userId");
+    }
+    
+    await connectToDB();
+    
+    const user = await User.findOne({ clerkId: userId }).select('wishlist');
+    
+    if (!user) {
+      return [];
+    }
+    
+    // Ensure wishlist is an array
+    return Array.isArray(user.wishlist) ? user.wishlist : [];
+  } catch (err) {
+    console.error("[GET_USER_WISHLIST_ERROR]", err);
+    throw new Error("Failed to fetch user wishlist");
+  }
+}); 

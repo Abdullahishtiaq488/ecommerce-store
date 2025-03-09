@@ -16,7 +16,7 @@ interface WishlistClientProps {
     removeFromWishlist: (productId: string) => Promise<void>;
 }
 
-const WishlistClient = ({ wishlisted = [], user, removeFromWishlist }: WishlistClientProps) => {
+const EnhancedWishlistClient = ({ wishlisted = [], user, removeFromWishlist }: WishlistClientProps) => {
     const router = useRouter();
     const { isLoaded: isUserLoaded } = useUser();
     const cart = useCart();
@@ -237,4 +237,4 @@ const WishlistClient = ({ wishlisted = [], user, removeFromWishlist }: WishlistC
     );
 };
 
-export default WishlistClient; 
+export default EnhancedWishlistClient; 

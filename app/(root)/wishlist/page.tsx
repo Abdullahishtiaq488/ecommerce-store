@@ -1,9 +1,8 @@
 import Container from "@/components/Container";
-import Empty from "@/components/Empty";
 import Hero from "@/components/Hero";
-import { getCurrentUser } from "@/lib/actions/userActions";
+import { getCurrentUser, updateWishlist } from "@/lib/actions/userActions";
 import { getProducts } from "@/lib/actions/actions";
-import WishlistClient from "./WishlistClient";
+import EnhancedWishlistClient from "./EnhancedWishlistClient";
 import { redirect } from "next/navigation";
 
 const WishlistPage = async () => {
@@ -34,31 +33,45 @@ const WishlistPage = async () => {
     const serializedProducts = JSON.parse(JSON.stringify(wishlistProducts));
     const serializedUser = JSON.parse(JSON.stringify(userData));
 
+    // Function to remove an item from the wishlist
+    const removeFromWishlist = async (productId: string) => {
+      "use server";
+
+      if (!userData || !userData.clerkId) {
+        throw new Error("User not authenticated");
+      }
+
+      try {
+        await updateWishlist(userData.clerkId, productId);
+        return { success: true };
+      } catch (error) {
+        console.error("[REMOVE_WISHLIST_ERROR]", error);
+        throw new Error("Failed to remove item from wishlist");
+      }
+    };
+
     return (
-      <div>
-        <Hero title="Wishlist" />
-        <Container>
-          <WishlistClient
-            products={serializedProducts}
-            user={serializedUser}
-          />
-        </Container>
+      <div className="bg-gray-50 min-h-screen">
+        <EnhancedWishlistClient
+          wishlisted={serializedProducts}
+          user={serializedUser}
+          removeFromWishlist={removeFromWishlist}
+        />
       </div>
     );
   } catch (error) {
     console.error("Wishlist page error:", error);
 
-    // Show a basic error UI
+    // Return a fallback UI in case of error
     return (
-      <div>
-        <Hero title="Wishlist" />
+      <div className="bg-gray-50 min-h-screen">
         <Container>
-          <Empty
-            title="Something went wrong"
-            subtitle="We couldn't load your wishlist. Please try again later."
-            showReset
-            resetLink="/"
-          />
+          <div className="py-12 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Unable to load wishlist</h1>
+            <p className="text-gray-600">
+              We encountered an error while loading your wishlist. Please try again later.
+            </p>
+          </div>
         </Container>
       </div>
     );
