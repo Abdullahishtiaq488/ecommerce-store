@@ -20,6 +20,7 @@ export type SafeUser = {
 
 /**
  * Gets the current authenticated user data from the database.
+ * Uses React cache for efficient data fetching.
  * Ensures wishlist is always an array.
  */
 export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
@@ -52,13 +53,45 @@ export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
     return safeUser;
   } catch (err) {
     console.error("[GET_CURRENT_USER_ERROR]", err);
-    throw new Error("Failed to fetch current user");
+    throw new Error(`Failed to fetch current user: ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
+});
+
+/**
+ * Gets user data by clerk ID.
+ * Uses React cache for efficient data fetching.
+ */
+export const getUserByClerkId = cache(async (clerkId: string): Promise<SafeUser | null> => {
+  try {
+    if (!clerkId) {
+      throw new Error("Clerk ID is required");
+    }
+    
+    await connectToDB();
+    
+    const user = await User.findOne({ clerkId });
+    
+    if (!user) {
+      return null;
+    }
+    
+    // Ensure wishlist is always an array
+    const safeUser: SafeUser = {
+      ...user.toObject(),
+      wishlist: Array.isArray(user.wishlist) ? user.wishlist : [],
+    };
+    
+    return safeUser;
+  } catch (err) {
+    console.error("[GET_USER_BY_CLERK_ID_ERROR]", err);
+    throw new Error(`Failed to fetch user by clerk ID: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 });
 
 /**
  * Updates the user's wishlist by adding or removing a product ID.
  * If the product ID is already in the wishlist, it will be removed (toggle behavior).
+ * Revalidates user data cache after update.
  */
 export const updateWishlist = async (clerkId: string, productId: string) => {
   try {
@@ -82,13 +115,16 @@ export const updateWishlist = async (clerkId: string, productId: string) => {
     
     // Check if the product is already in the wishlist
     const productIndex = user.wishlist.indexOf(productId);
+    let action;
     
     if (productIndex === -1) {
       // If product is not in wishlist, add it
       user.wishlist.push(productId);
+      action = "added";
     } else {
       // If product is already in wishlist, remove it
       user.wishlist.splice(productIndex, 1);
+      action = "removed";
     }
     
     // Save the updated user
@@ -100,7 +136,8 @@ export const updateWishlist = async (clerkId: string, productId: string) => {
     return {
       success: true,
       wishlist: user.wishlist,
-      added: productIndex === -1, // true if added, false if removed
+      action,
+      message: `Product ${action} ${action === "added" ? "to" : "from"} wishlist`,
     };
   } catch (err) {
     console.error("[UPDATE_WISHLIST_ERROR]", err);
@@ -110,6 +147,7 @@ export const updateWishlist = async (clerkId: string, productId: string) => {
 
 /**
  * Gets user's wishlist items
+ * Uses React cache for efficient data fetching.
  */
 export const getUserWishlist = cache(async (userId: string): Promise<string[]> => {
   try {
@@ -129,6 +167,43 @@ export const getUserWishlist = cache(async (userId: string): Promise<string[]> =
     return Array.isArray(user.wishlist) ? user.wishlist : [];
   } catch (err) {
     console.error("[GET_USER_WISHLIST_ERROR]", err);
-    throw new Error("Failed to fetch user wishlist");
+    throw new Error(`Failed to fetch user wishlist: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
-}); 
+});
+
+/**
+ * Creates a new user if they don't exist
+ */
+export const createUserIfNotExists = async (clerkId: string, email?: string, firstName?: string, lastName?: string) => {
+  try {
+    if (!clerkId) {
+      throw new Error("Clerk ID is required");
+    }
+    
+    await connectToDB();
+    
+    // Check if user already exists
+    let user = await User.findOne({ clerkId });
+    
+    // If user doesn't exist, create a new one
+    if (!user) {
+      user = new User({
+        clerkId,
+        email,
+        firstName,
+        lastName,
+        wishlist: [],
+      });
+      
+      await user.save();
+      
+      // Revalidate user data
+      revalidateTag('userData');
+    }
+    
+    return user;
+  } catch (err) {
+    console.error("[CREATE_USER_ERROR]", err);
+    throw new Error(`Failed to create user: ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
+}; 

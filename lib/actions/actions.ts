@@ -3,18 +3,24 @@
 import { cache } from 'react';
 import { revalidateTag } from 'next/cache';
 
-// Centralized error handling function
+// Centralized error handling function with more detailed logging
 const handleFetchError = (operation: string, error: any) => {
   console.error(`[${operation}_ERROR]`, error);
-  throw new Error(`Failed to fetch ${operation.toLowerCase()}`);
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  throw new Error(`Failed to fetch ${operation.toLowerCase()}: ${errorMessage}`);
 };
 
-// Cache collections data with tags for revalidation
+/**
+ * Get all collections with proper caching and error handling
+ */
 export const getCollections = cache(async () => {
   try {
     const collections = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/collections`, {
       cache: 'force-cache',
-      next: { tags: ['collections'] }
+      next: { 
+        tags: ['collections'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!collections.ok) {
@@ -27,12 +33,21 @@ export const getCollections = cache(async () => {
   }
 });
 
-// Cache collection details with tags for revalidation
+/**
+ * Get collection details by ID with proper caching and error handling
+ */
 export const getCollectionDetails = cache(async (collectionId: string) => {
   try {
+    if (!collectionId) {
+      throw new Error('Collection ID is required');
+    }
+
     const collection = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/collections/${collectionId}`, {
       cache: 'force-cache',
-      next: { tags: [`collection-${collectionId}`, 'collections'] }
+      next: { 
+        tags: [`collection-${collectionId}`, 'collections'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!collection.ok) {
@@ -45,12 +60,17 @@ export const getCollectionDetails = cache(async (collectionId: string) => {
   }
 });
 
-// Cache products data with tags for revalidation
+/**
+ * Get all products with proper caching and error handling
+ */
 export const getProducts = cache(async () => {
   try {
     const products = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
       cache: 'force-cache',
-      next: { tags: ['products'] }
+      next: { 
+        tags: ['products'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!products.ok) {
@@ -63,12 +83,21 @@ export const getProducts = cache(async () => {
   }
 });
 
-// Cache product details with tags for revalidation
+/**
+ * Get product details by ID with proper caching and error handling
+ */
 export const getProductDetails = cache(async (productId: string) => {
   try {
+    if (!productId) {
+      throw new Error('Product ID is required');
+    }
+
     const product = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`, {
       cache: 'force-cache',
-      next: { tags: [`product-${productId}`, 'products'] }
+      next: { 
+        tags: [`product-${productId}`, 'products'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!product.ok) {
@@ -78,13 +107,20 @@ export const getProductDetails = cache(async (productId: string) => {
     return product.json();
   } catch (error) {
     handleFetchError(`PRODUCT_${productId}`, error);
+    return null; // Return null to allow graceful handling in components
   }
 });
 
-// Search products - no caching for search results
+/**
+ * Search products - no caching for search results
+ */
 export const getSearchedProducts = async (query: string) => {
   try {
-    const searchedProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/search/${query}`, {
+    if (!query || query.trim() === '') {
+      return [];
+    }
+
+    const searchedProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/search/${encodeURIComponent(query)}`, {
       cache: 'no-store' // Don't cache search results
     });
     
@@ -95,15 +131,25 @@ export const getSearchedProducts = async (query: string) => {
     return searchedProducts.json();
   } catch (error) {
     handleFetchError(`SEARCH_${query}`, error);
+    return []; // Return empty array to allow graceful handling in components
   }
 };
 
-// Cache orders with tags for revalidation
+/**
+ * Get orders by customer ID with proper caching and error handling
+ */
 export const getOrders = cache(async (customerId: string) => {
   try {
+    if (!customerId) {
+      throw new Error('Customer ID is required');
+    }
+
     const orders = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/customers/${customerId}`, {
       cache: 'force-cache',
-      next: { tags: [`orders-${customerId}`, 'orders'] }
+      next: { 
+        tags: [`orders-${customerId}`, 'orders'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!orders.ok) {
@@ -113,15 +159,25 @@ export const getOrders = cache(async (customerId: string) => {
     return orders.json();
   } catch (error) {
     handleFetchError(`ORDERS_${customerId}`, error);
+    return []; // Return empty array to allow graceful handling in components
   }
 });
 
-// Cache related products with tags for revalidation
+/**
+ * Get related products by product ID with proper caching and error handling
+ */
 export const getRelatedProducts = cache(async (productId: string) => {
   try {
+    if (!productId) {
+      throw new Error('Product ID is required');
+    }
+
     const relatedProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/related`, {
       cache: 'force-cache',
-      next: { tags: [`related-${productId}`, 'products'] }
+      next: { 
+        tags: [`related-${productId}`, 'products'],
+        revalidate: 3600 // Revalidate every hour
+      }
     });
     
     if (!relatedProducts.ok) {
@@ -131,30 +187,33 @@ export const getRelatedProducts = cache(async (productId: string) => {
     return relatedProducts.json();
   } catch (error) {
     handleFetchError(`RELATED_PRODUCTS_${productId}`, error);
+    return []; // Return empty array to allow graceful handling in components
   }
 });
 
-// Function to revalidate all product-related data
+/**
+ * Revalidation functions for different data types
+ */
 export async function revalidateProductsData() {
   revalidateTag('products');
 }
 
-// Function to revalidate all collection-related data
 export async function revalidateCollectionsData() {
   revalidateTag('collections');
 }
 
-// Function to revalidate all order-related data
 export async function revalidateOrdersData() {
   revalidateTag('orders');
 }
 
-// Function to revalidate specific product data
 export async function revalidateProductData(productId: string) {
   revalidateTag(`product-${productId}`);
 }
 
-// Function to revalidate specific collection data
 export async function revalidateCollectionData(collectionId: string) {
   revalidateTag(`collection-${collectionId}`);
+}
+
+export async function revalidateUserData() {
+  revalidateTag('userData');
 }

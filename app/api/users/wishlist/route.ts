@@ -1,31 +1,103 @@
-import { updateWishlist } from "@/lib/actions/userActions";
+import User from "@/lib/models/User";
+import { connectToDB } from "@/lib/mongoDB";
+import { revalidateTag } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * POST handler for adding/removing products from a user's wishlist
+ * This is a toggle operation - if the product is already in the wishlist, it will be removed
+ */
 export const POST = async (req: NextRequest) => {
   try {
-    const { productId } = await req.json();
+    // Authenticate user
+    const { userId } = await auth();
 
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Connect to database
+    await connectToDB();
+
+    // Parse request body
+    const body = await req.json();
+    const { productId } = body;
+
+    // Validate productId
     if (!productId) {
-      return new NextResponse("Product Id required", { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Product ID is required" },
+        { status: 400 }
+      );
     }
 
-    const userId = "someUserId"; // Replace with the actual user ID or fetch it as needed
+    // Find user
+    const user = await User.findOne({ clerkId: userId });
 
-    const updatedUser = await updateWishlist(userId, productId);
-    
-    return NextResponse.json(updatedUser, { status: 200 });
-  } catch (err) {
-    console.error("[wishlist_POST_API]", err);
-    
-    if (err instanceof Error) {
-      if (err.message === "Unauthorized") {
-        return new NextResponse("Unauthorized", { status: 401 });
-      }
-      if (err.message === "User not found") {
-        return new NextResponse("User not found", { status: 404 });
-      }
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
     }
+
+    // Ensure wishlist is an array
+    if (!Array.isArray(user.wishlist)) {
+      user.wishlist = [];
+    }
+
+    // Check if product is already in wishlist
+    const isFavorite = user.wishlist.includes(productId);
+    let action;
+
+    // Toggle product in wishlist
+    if (isFavorite) {
+      user.wishlist = user.wishlist.filter(
+        (id: string) => id !== productId
+      );
+      action = "removed";
+    } else {
+      user.wishlist.push(productId);
+      action = "added";
+    }
+
+    // Save user
+    await user.save();
+
+    // Revalidate user data cache
+    revalidateTag('userData');
+
+    // Return updated user with proper format
+    return NextResponse.json(
+      { 
+        success: true, 
+        message: `Product ${action} from wishlist`,
+        action,
+        wishlist: user.wishlist,
+        user: {
+          _id: user._id,
+          clerkId: user.clerkId,
+          wishlist: user.wishlist,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      }, 
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("[WISHLIST_POST]", error);
     
-    return new NextResponse("Internal Server Error", { status: 500 });
+    // Return error response
+    return NextResponse.json(
+      { 
+        success: false, 
+        message: error instanceof Error ? error.message : "Internal server error" 
+      },
+      { status: 500 }
+    );
   }
 }
