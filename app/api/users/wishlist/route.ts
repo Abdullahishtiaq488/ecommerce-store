@@ -9,7 +9,9 @@ export const POST = async (req: NextRequest) => {
       return new NextResponse("Product Id required", { status: 400 });
     }
 
-    const updatedUser = await updateWishlist(productId);
+    const userId = "someUserId"; // Replace with the actual user ID or fetch it as needed
+
+    const updatedUser = await updateWishlist(userId, productId);
     
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (err) {

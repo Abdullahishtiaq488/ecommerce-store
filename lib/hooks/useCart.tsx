@@ -2,6 +2,29 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+interface ProductType {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  discountedPrice?: number;
+  category: string;
+  subcategory?: string;
+  collections?: string[];
+  tags?: string[];
+  media: string[];
+  sizes?: string[];
+  colors?: { name: string; value: string }[];
+  rating?: number;
+  reviews?: number;
+  isNew?: boolean;
+  isOnSale?: boolean;
+  isFeatured?: boolean;
+  stock?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 interface CartItem {
   item: ProductType;
   quantity: number;

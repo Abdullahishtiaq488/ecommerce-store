@@ -1,9 +1,10 @@
 // Product Type Definition
-interface ProductType {
+export interface ProductType {
   _id: string;
   title: string;
   description: string;
   price: number;
+  cost?: number;
   discountedPrice?: number;
   category: string;
   subcategory?: string;
@@ -11,7 +12,7 @@ interface ProductType {
   tags?: string[];
   media: string[];
   sizes?: string[];
-  colors?: { name: string; value: string }[];
+  colors: string[];
   rating?: number;
   reviews?: number;
   isNew?: boolean;
@@ -23,7 +24,7 @@ interface ProductType {
 }
 
 // User Type Definition
-interface UserType {
+export interface UserType {
   _id: string;
   clerkId: string;
   email?: string;

@@ -10,11 +10,11 @@ import useCart from "@/lib/hooks/useCart"
 import HeartFavorite from "./HeartFavorite"
 
 const ProductInfo = ({ productInfo }: { productInfo: ProductType }) => {
-  const [selectedColor, setSelectedColor] = useState<string>(productInfo.colors[0])
-  const [selectedSize, setSelectedSize] = useState<string>(productInfo.sizes[0])
-  const [quantity, setQuantity] = useState<number>(1)
+  const [selectedColor, setSelectedColor] = useState<string>(productInfo.colors[0] || '');
+  const [selectedSize, setSelectedSize] = useState<string>(productInfo.sizes?.[0] || '');
+  const [quantity, setQuantity] = useState<number>(1);
 
-  const cart = useCart()
+  const cart = useCart();
 
   return (
     <Card className="w-full max-w-lg">
@@ -29,11 +29,9 @@ const ProductInfo = ({ productInfo }: { productInfo: ProductType }) => {
           <p className="text-base-bold">{productInfo.category}</p>
         </div>
         <p className="text-heading3-bold">$ {productInfo.price}</p>
-
       </CardHeader>
 
       <CardContent className="space-y-3">
-
         <div className="flex flex-col gap-2">
           <p className="text-base-medium text-grey-2">Description:</p>
           <p className="text-small-medium">{productInfo.description}</p>
@@ -57,7 +55,7 @@ const ProductInfo = ({ productInfo }: { productInfo: ProductType }) => {
           </div>
         )}
 
-        {productInfo.sizes.length > 0 && (
+        {productInfo.sizes?.length > 0 && (
           <div>
             <h3 className="text-base-medium text-grey-2 mb-2">Sizes:</h3>
             <div className="flex flex-wrap gap-2">
@@ -105,8 +103,8 @@ const ProductInfo = ({ productInfo }: { productInfo: ProductType }) => {
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
 export default ProductInfo
 

@@ -1,8 +1,16 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "react-hot-toast";
+import { ProductType } from "@/types";
+
+interface CartItem {
+  item: ProductType;
+  quantity: number;
+  color?: string;
+  size?: string;
+}
 
 interface CartStore {
   cartItems: CartItem[];
@@ -62,14 +70,14 @@ const useCart = create<CartStore>()(
       
       setCartItems: (items) => {
         try {
-          // Filter out invalid items
+          // Validate and filter items
           const validItems = Array.isArray(items) 
-            ? items.filter(item => isValidCartItem(item))
+            ? items.filter(isValidCartItem)
             : [];
-            
+          
           set({ cartItems: validItems });
         } catch (error) {
-          console.error('[CART_SET_ITEMS_ERROR]', error);
+          console.error("[SET_CART_ITEMS_ERROR]", error);
           set({ cartItems: [] });
         }
       },
@@ -77,110 +85,112 @@ const useCart = create<CartStore>()(
       addItem: (data) => {
         try {
           if (!isValidCartItem(data)) {
-            console.error('[CART_ADD_ITEM_ERROR] Invalid cart item', data);
-            return;
+            throw new Error("Invalid cart item");
           }
           
           const currentItems = get().cartItems;
+          const existingItem = currentItems.find(item => isSameVariant(item, data));
           
-          // Check if the item already exists in the cart
-          const existingItemIndex = currentItems.findIndex(item => 
-            isSameVariant(item, data)
-          );
-          
-          if (existingItemIndex !== -1) {
-            // If item exists, increase quantity
-            const updatedItems = [...currentItems];
-            updatedItems[existingItemIndex].quantity += data.quantity;
-            set({ cartItems: updatedItems });
-            toast.success('Item quantity updated in cart');
-          } else {
-            // If item doesn't exist, add it
-            set({ cartItems: [...currentItems, data] });
-            toast.success('Item added to cart');
+          if (existingItem) {
+            // If item already exists, increase quantity
+            return set({
+              cartItems: currentItems.map(item => 
+                isSameVariant(item, data)
+                  ? { ...item, quantity: item.quantity + data.quantity }
+                  : item
+              )
+            });
           }
+          
+          // If item doesn't exist, add it
+          set({ cartItems: [...currentItems, data] });
+          toast.success("Item added to cart");
         } catch (error) {
-          console.error('[CART_ADD_ITEM_ERROR]', error);
-          toast.error('Failed to add item to cart');
+          console.error("[ADD_CART_ITEM_ERROR]", error);
+          toast.error("Failed to add item to cart");
         }
       },
       
       removeItem: (id, color, size) => {
         try {
-          if (!id) return;
-          
           const currentItems = get().cartItems;
-          const updatedItems = currentItems.filter(item => 
-            !(item.item._id === id && item.color === color && item.size === size)
-          );
-          
-          set({ cartItems: updatedItems });
-          toast.success('Item removed from cart');
+          set({ 
+            cartItems: currentItems.filter(item => 
+              !(item.item._id === id && 
+                item.color === color && 
+                item.size === size)
+            ) 
+          });
+          toast.success("Item removed from cart");
         } catch (error) {
-          console.error('[CART_REMOVE_ITEM_ERROR]', error);
-          toast.error('Failed to remove item from cart');
+          console.error("[REMOVE_CART_ITEM_ERROR]", error);
+          toast.error("Failed to remove item from cart");
         }
       },
       
       increaseQuantity: (id, color, size) => {
         try {
-          if (!id) return;
-          
           const currentItems = get().cartItems;
-          const itemIndex = currentItems.findIndex(item => 
-            item.item._id === id && item.color === color && item.size === size
-          );
+          const itemToUpdate = findCartItem(currentItems, id, color, size);
           
-          if (itemIndex !== -1) {
-            const updatedItems = [...currentItems];
-            updatedItems[itemIndex].quantity += 1;
-            set({ cartItems: updatedItems });
+          if (!itemToUpdate) {
+            throw new Error("Item not found in cart");
           }
+          
+          set({
+            cartItems: currentItems.map(item => 
+              item === itemToUpdate
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            )
+          });
         } catch (error) {
-          console.error('[CART_INCREASE_QUANTITY_ERROR]', error);
+          console.error("[INCREASE_QUANTITY_ERROR]", error);
+          toast.error("Failed to update quantity");
         }
       },
       
       decreaseQuantity: (id, color, size) => {
         try {
-          if (!id) return;
-          
           const currentItems = get().cartItems;
-          const itemIndex = currentItems.findIndex(item => 
-            item.item._id === id && item.color === color && item.size === size
-          );
+          const itemToUpdate = findCartItem(currentItems, id, color, size);
           
-          if (itemIndex !== -1) {
-            const updatedItems = [...currentItems];
-            
-            if (updatedItems[itemIndex].quantity === 1) {
-              // If quantity is 1, remove the item
-              updatedItems.splice(itemIndex, 1);
-              toast.success('Item removed from cart');
-            } else {
-              // Otherwise decrease quantity
-              updatedItems[itemIndex].quantity -= 1;
-            }
-            
-            set({ cartItems: updatedItems });
+          if (!itemToUpdate) {
+            throw new Error("Item not found in cart");
           }
+          
+          if (itemToUpdate.quantity === 1) {
+            // If quantity is 1, remove the item
+            return get().removeItem(id, color, size);
+          }
+          
+          // Otherwise decrease quantity
+          set({
+            cartItems: currentItems.map(item => 
+              item === itemToUpdate
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+            )
+          });
         } catch (error) {
-          console.error('[CART_DECREASE_QUANTITY_ERROR]', error);
+          console.error("[DECREASE_QUANTITY_ERROR]", error);
+          toast.error("Failed to update quantity");
         }
       },
       
       clearCart: () => {
         try {
           set({ cartItems: [] });
-          toast.success('Cart cleared');
+          toast.success("Cart cleared");
         } catch (error) {
-          console.error('[CART_CLEAR_ERROR]', error);
+          console.error("[CLEAR_CART_ERROR]", error);
+          toast.error("Failed to clear cart");
         }
       },
     }),
     {
-      name: 'shopping-cart',
-      skipHydration: true,
+      name: "cart-storage",
+      storage: typeof window !== 'undefined' ? createJSONStorage(() => localStorage) : undefined,
     }
   )
 );

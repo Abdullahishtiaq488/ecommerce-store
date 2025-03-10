@@ -25,7 +25,8 @@ export type SafeUser = {
 export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
   try {
     // Check if user is authenticated
-    const { userId } = auth();
+    const authData = await auth();
+    const userId = authData.userId;
     
     if (!userId) {
       console.log("[GET_CURRENT_USER] No userId found in auth");

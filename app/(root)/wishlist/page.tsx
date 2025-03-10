@@ -1,5 +1,4 @@
 import Container from "@/components/Container";
-import Hero from "@/components/Hero";
 import { getCurrentUser, updateWishlist } from "@/lib/actions/userActions";
 import { getProducts } from "@/lib/actions/actions";
 import EnhancedWishlistClient from "./EnhancedWishlistClient";
@@ -21,19 +20,12 @@ const WishlistPage = async () => {
     // Ensure wishlist is an array
     const userWishlist = Array.isArray(userData.wishlist) ? userData.wishlist : [];
 
-    // Make sure products is an array
-    const allProducts = Array.isArray(productsData) ? productsData : [];
-
-    // Filter products to only include those in the user's wishlist
-    const wishlistProducts = allProducts.filter(product =>
+    // Filter products to get only those in the user's wishlist
+    const wishlistedProducts = productsData.filter((product: ProductType) =>
       userWishlist.includes(product._id)
     );
 
-    // Serialize the data to prevent any Next.js serialization issues
-    const serializedProducts = JSON.parse(JSON.stringify(wishlistProducts));
-    const serializedUser = JSON.parse(JSON.stringify(userData));
-
-    // Function to remove an item from the wishlist
+    // Server action to remove from wishlist
     const removeFromWishlist = async (productId: string) => {
       "use server";
 
@@ -43,7 +35,6 @@ const WishlistPage = async () => {
 
       try {
         await updateWishlist(userData.clerkId, productId);
-        return { success: true };
       } catch (error) {
         console.error("[REMOVE_WISHLIST_ERROR]", error);
         throw new Error("Failed to remove item from wishlist");
@@ -51,29 +42,23 @@ const WishlistPage = async () => {
     };
 
     return (
-      <div className="bg-gray-50 min-h-screen">
+      <Container>
         <EnhancedWishlistClient
-          wishlisted={serializedProducts}
-          user={serializedUser}
+          wishlisted={wishlistedProducts}
+          user={userData}
           removeFromWishlist={removeFromWishlist}
         />
-      </div>
+      </Container>
     );
   } catch (error) {
-    console.error("Wishlist page error:", error);
-
-    // Return a fallback UI in case of error
+    console.error("[WISHLIST_PAGE_ERROR]", error);
     return (
-      <div className="bg-gray-50 min-h-screen">
-        <Container>
-          <div className="py-12 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Unable to load wishlist</h1>
-            <p className="text-gray-600">
-              We encountered an error while loading your wishlist. Please try again later.
-            </p>
-          </div>
-        </Container>
-      </div>
+      <Container>
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+          <p>We couldn't load your wishlist. Please try again later.</p>
+        </div>
+      </Container>
     );
   }
 };
