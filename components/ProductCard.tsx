@@ -9,7 +9,7 @@ interface ProductCardProps {
   updateSignedInUser?: (updatedUser: UserType) => void;
 }
 
-const ProductCard = ({ product, updateSignedInUser }: ProductCardProps ) => {
+const ProductCard = ({ product, updateSignedInUser }: ProductCardProps) => {
   return (
     <Link
       href={`/products/${product._id}`}
@@ -28,7 +28,7 @@ const ProductCard = ({ product, updateSignedInUser }: ProductCardProps ) => {
       </div>
       <div className="flex justify-between items-center">
         <p className="text-body-bold">${product.price}</p>
-        <HeartFavorite product={product} updateSignedInUser={updateSignedInUser} />
+        <HeartFavorite product={product} />
       </div>
     </Link>
   );

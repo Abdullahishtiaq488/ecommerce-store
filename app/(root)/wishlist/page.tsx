@@ -1,76 +1,69 @@
-"use client"
+import Container from "@/components/Container";
+import { getCurrentUser, updateWishlist } from "@/lib/actions/userActions";
+import { getProducts } from "@/lib/actions/actions";
+import EnhancedWishlistClient from "./EnhancedWishlistClient";
+import { redirect } from "next/navigation";
 
-import Loader from "@/components/Loader"
-import ProductCard from "@/components/ProductCard"
-import { getProductDetails } from "@/lib/actions/actions"
-import { useUser } from "@clerk/nextjs"
-import { use, useEffect, useState } from "react"
+const WishlistPage = async () => {
+  try {
+    // Fetch user and products in parallel
+    const [userData, productsData] = await Promise.all([
+      getCurrentUser(),
+      getProducts()
+    ]);
 
-const Wishlist = () => {
-  const { user } = useUser()
-
-  const [loading, setLoading] = useState(true)
-  const [signedInUser, setSignedInUser] = useState<UserType | null>(null)
-  const [wishlist, setWishlist] = useState<ProductType[]>([])
-
-  const getUser = async () => {
-    try {
-      const res = await fetch("/api/users")
-      const data = await res.json()
-      setSignedInUser(data)
-      setLoading(false)
-    } catch (err) {
-      console.log("[users_GET", err)
+    // If user is not authenticated, redirect to sign-in
+    if (!userData) {
+      redirect("/sign-in");
     }
+
+    // Ensure wishlist is an array
+    const userWishlist = Array.isArray(userData.wishlist) ? userData.wishlist : [];
+
+    // Filter products to get only those in the user's wishlist
+    const wishlistedProducts = productsData.filter((product: ProductType) =>
+      userWishlist.includes(product._id)
+    );
+
+    // Server action to remove from wishlist
+    const removeFromWishlist = async (productId: string) => {
+      "use server";
+
+      if (!userData || !userData.clerkId) {
+        throw new Error("User not authenticated");
+      }
+
+      try {
+        await updateWishlist(userData.clerkId, productId);
+      } catch (error) {
+        console.error("[REMOVE_WISHLIST_ERROR]", error);
+        throw new Error("Failed to remove item from wishlist");
+      }
+    };
+
+    return (
+      <Container>
+        <EnhancedWishlistClient
+          wishlisted={wishlistedProducts}
+          user={userData}
+          removeFromWishlist={removeFromWishlist}
+        />
+      </Container>
+    );
+  } catch (error) {
+    console.error("[WISHLIST_PAGE_ERROR]", error);
+    return (
+      <Container>
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+          <p>We couldn't load your wishlist. Please try again later.</p>
+        </div>
+      </Container>
+    );
   }
+};
 
-  useEffect(() => {
-    if (user) {
-      getUser()
-    }
-  }, [user])
-
-  const getWishlistProducts = async () => {
-    setLoading(true)
-
-    if (!signedInUser) return
-
-    const wishlistProducts = await Promise.all(signedInUser.wishlist.map(async (productId) => {
-      const res = await getProductDetails(productId)
-      return res
-    }))
-
-    setWishlist(wishlistProducts)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    if (signedInUser) {
-      getWishlistProducts()
-    }
-  }, [signedInUser])
-
-  const updateSignedInUser = (updatedUser: UserType) => {
-    setSignedInUser(updatedUser)
-  }
-
-
-  return loading ? <Loader /> : (
-    <div className="px-10 py-5">
-      <p className="text-heading3-bold my-10">Your Wishlist</p>
-      {wishlist.length === 0 && (
-        <p>No items in your wishlist</p>
-      )}
-
-      <div className="flex flex-wrap justify-center gap-16">
-        {wishlist.map((product) => (
-          <ProductCard key={product._id} product={product} updateSignedInUser={updateSignedInUser} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
+// Force dynamic rendering for this page
 export const dynamic = "force-dynamic";
 
-export default Wishlist
+export default WishlistPage;
